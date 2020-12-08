@@ -1,8 +1,13 @@
-# go-avx [![Build Status](https://travis-ci.org/monochromegane/go-avx.svg?branch=master)](https://travis-ci.org/monochromegane/go-avx)
+# go-vx
 
-AVX(Advanced Vector Extensions) binding for golang.
+SIMD (Single Instruction Multiple Data) extension for golang.
+Provide AVX (Advanced Vector Extensions) binding for amd64 and NEON binding for arm64.
+
+Forked from [https://github.com/monochromegane/go-avx](https://github.com/monochromegane/go-avx)
 
 ## Golang code example
+
+Set `CGO_CFLAGS_ALLOW=-mfma` to build binary for amd64.
 
 ```go
 package main
@@ -10,24 +15,24 @@ package main
 import (
 	"fmt"
 
-	avx "github.com/monochromegane/go-avx"
+	"github.com/gumigumi4f/go-vx"
 )
 
 func main() {
 	dim := 8
-	x := avx.MmMalloc(dim)
-	y := avx.MmMalloc(dim)
-	z := avx.MmMalloc(dim)
-	defer avx.MmFree(x)
-	defer avx.MmFree(y)
-	defer avx.MmFree(z)
+	x := vx.Malloc(dim)
+	y := vx.Malloc(dim)
+	z := vx.Malloc(dim)
+	defer vx.Free(x)
+	defer vx.Free(y)
+	defer vx.Free(z)
 
 	for i := 0; i < dim; i++ {
 		x[i] = float32(i)
 		y[i] = float32(i + 1)
 	}
 
-	avx.Add(dim, x, y, z)
+	vx.Add(dim, x, y, z)
 
 	fmt.Printf("%v\n", z) // [1 3 5 7 9 11 13 15]
 }
@@ -38,16 +43,13 @@ func main() {
 - Add
 - Sub
 - Mul
+- Div
 - Dot
-- EuclideanDistance 
 
-See also `avx_test.go`.
+See also `vx_test.go`.
+
+## Benchmark
 
 ## License
 
-[MIT](https://github.com/monochromegane/go-avx/blob/master/LICENSE)
-
-## Author
-
-[monochromegane](https://github.com/monochromegane)
-
+[MIT](https://github.com/gumigumi4f/go-vx/blob/master/LICENSE)
