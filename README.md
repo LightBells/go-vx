@@ -50,6 +50,30 @@ See also `vx_test.go`.
 
 ## Benchmark
 
+Run `go test -bench Benchmark ./... -run="^Benchmark"`
+
+### AMD64 (Tested on AWS EC2 c5.large instance)
+```
+goos: linux
+goarch: amd64
+pkg: github.com/gumigumi4f/go-vx
+BenchmarkDotVx-2             364           3201061 ns/op
+BenchmarkDotNative-2         100          10833781 ns/op
+PASS
+ok      github.com/gumigumi4f/go-vx     3.953s
+```
+
+### ARM64 (Tested on AWS EC2 c6g.medium instance)
+```
+goos: linux
+goarch: arm64
+pkg: github.com/gumigumi4f/go-vx
+BenchmarkDotVx               274           4275091 ns/op
+BenchmarkDotNative           100          10599838 ns/op
+PASS
+ok      github.com/gumigumi4f/go-vx     4.154s
+```
+
 ## License
 
 [MIT](https://github.com/gumigumi4f/go-vx/blob/master/LICENSE)
