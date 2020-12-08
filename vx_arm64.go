@@ -15,7 +15,6 @@ void vx_add(const size_t size, const float *x, const float *y, float *z) {
     const size_t l = size / 4;
 
     for (size_t i = 0; i < l; ++i) {
-
         vz[i] = vaddq_f32(vx[i], vy[i]);
     }
 }
