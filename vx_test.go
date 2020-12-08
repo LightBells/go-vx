@@ -122,7 +122,7 @@ func TestDiv(t *testing.T) {
 
 			for i := 0; i < size; i++ {
 				if truth[i] != z[i] {
-					t.Errorf("Mul should return %f in %d, but %f", truth[i], i, z[i])
+					t.Errorf("Div should return %f in %d, but %f", truth[i], i, z[i])
 				}
 			}
 		}(size)

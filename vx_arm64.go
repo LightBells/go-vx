@@ -1,7 +1,7 @@
 package vx
 
 /*
-#cgo CFLAGS: -mfpu=neon -mfloat-abi=softfp -std=c11
+#cgo CFLAGS: -std=c11
 #cgo LDFLAGS: -lm
 
 #include <stddef.h>
@@ -52,8 +52,7 @@ void vx_div(const size_t size, const float *x, const float *y, float *z) {
     const size_t l = size / 4;
 
     for (size_t i = 0; i < l; ++i) {
-        float32x4_t vyrecp = vrecpeq_f32(vy[i]);
-        vz[i] = vmulq_f32(vx[i], vyrecp);
+        vz[i] = vdivq_f32(vx[i], vy[i]);
     }
 }
 
