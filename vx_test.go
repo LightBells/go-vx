@@ -8,11 +8,11 @@ import (
 func TestMalloc(t *testing.T) {
 	for _, size := range []int{7, 8, 15} {
 		func(size int) {
-			x := Malloc(size)
+			x := AlignedAlloc(size)
 			defer Free(x)
 
 			if len(x) != align(size) {
-				t.Errorf("Malloc should return float slice size of %d, but size is %d", align(size), len(x))
+				t.Errorf("AlignedAlloc should return float slice size of %d, but size is %d", align(size), len(x))
 			}
 		}(size)
 	}
@@ -21,9 +21,9 @@ func TestMalloc(t *testing.T) {
 func TestAdd(t *testing.T) {
 	for _, size := range []int{7, 8, 15} {
 		func(size int) {
-			x := Malloc(size)
-			y := Malloc(size)
-			z := Malloc(size)
+			x := AlignedAlloc(size)
+			y := AlignedAlloc(size)
+			z := AlignedAlloc(size)
 			defer Free(x)
 			defer Free(y)
 			defer Free(z)
@@ -49,9 +49,9 @@ func TestAdd(t *testing.T) {
 func TestSub(t *testing.T) {
 	for _, size := range []int{7, 8, 15} {
 		func(size int) {
-			x := Malloc(size)
-			y := Malloc(size)
-			z := Malloc(size)
+			x := AlignedAlloc(size)
+			y := AlignedAlloc(size)
+			z := AlignedAlloc(size)
 			defer Free(x)
 			defer Free(y)
 			defer Free(z)
@@ -77,9 +77,9 @@ func TestSub(t *testing.T) {
 func TestMul(t *testing.T) {
 	for _, size := range []int{7, 8, 15} {
 		func(size int) {
-			x := Malloc(size)
-			y := Malloc(size)
-			z := Malloc(size)
+			x := AlignedAlloc(size)
+			y := AlignedAlloc(size)
+			z := AlignedAlloc(size)
 			defer Free(x)
 			defer Free(y)
 			defer Free(z)
@@ -105,9 +105,9 @@ func TestMul(t *testing.T) {
 func TestDiv(t *testing.T) {
 	for _, size := range []int{7, 8, 15} {
 		func(size int) {
-			x := Malloc(size)
-			y := Malloc(size)
-			z := Malloc(size)
+			x := AlignedAlloc(size)
+			y := AlignedAlloc(size)
+			z := AlignedAlloc(size)
 			defer Free(x)
 			defer Free(y)
 			defer Free(z)
@@ -133,8 +133,8 @@ func TestDiv(t *testing.T) {
 func TestDot(t *testing.T) {
 	for _, size := range []int{7, 8, 15} {
 		func(size int) {
-			x := Malloc(size)
-			y := Malloc(size)
+			x := AlignedAlloc(size)
+			y := AlignedAlloc(size)
 			defer Free(x)
 			defer Free(y)
 
@@ -170,14 +170,14 @@ func BenchmarkDotVx(b *testing.B) {
 	num := 16384
 	size := 512
 
-	vx := Malloc(size)
+	vx := AlignedAlloc(size)
 	for j := 0; j < size; j++ {
 		vx[j] = rand.Float32()
 	}
 
 	vys := make([][]float32, num)
 	for i := range vys {
-		vys[i] = Malloc(size)
+		vys[i] = AlignedAlloc(size)
 		for j := 0; j < size; j++ {
 			vys[i][j] = rand.Float32()
 		}
@@ -202,14 +202,14 @@ func BenchmarkDotNative(b *testing.B) {
 	num := 16384
 	size := 512
 
-	vx := make([]float32, num)
+	vx := make([]float32, size)
 	for j := 0; j < size; j++ {
 		vx[j] = rand.Float32()
 	}
 
 	vys := make([][]float32, num)
 	for i := range vys {
-		vys[i] = make([]float32, num)
+		vys[i] = make([]float32, size)
 		for j := 0; j < size; j++ {
 			vys[i][j] = rand.Float32()
 		}

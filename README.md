@@ -20,9 +20,9 @@ import (
 
 func main() {
 	dim := 8
-	x := vx.Malloc(dim)
-	y := vx.Malloc(dim)
-	z := vx.Malloc(dim)
+	x := vx.AlignedAlloc(dim)
+	y := vx.AlignedAlloc(dim)
+	z := vx.AlignedAlloc(dim)
 	defer vx.Free(x)
 	defer vx.Free(y)
 	defer vx.Free(z)

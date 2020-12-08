@@ -13,7 +13,7 @@ import (
 	"unsafe"
 )
 
-func Malloc(size int) []float32 {
+func AlignedAlloc(size int) []float32 {
 	size_ := size
 	size = align(size)
 	ptr := C.aligned_alloc(32, (C.size_t)(C.sizeof_float*size))
