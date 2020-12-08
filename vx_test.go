@@ -1,6 +1,7 @@
 package vx
 
 import (
+	"math/rand"
 	"testing"
 )
 
@@ -161,6 +162,69 @@ func TestAlign(t *testing.T) {
 	for _, expect := range expects {
 		if size := align(expect[0]); size != expect[1] {
 			t.Errorf("align should return %d, but %d", expect[1], size)
+		}
+	}
+}
+
+func BenchmarkDotVx(b *testing.B) {
+	num := 16384
+	size := 512
+
+	vx := Malloc(size)
+	for j := 0; j < size; j++ {
+		vx[j] = rand.Float32()
+	}
+
+	vys := make([][]float32, num)
+	for i := range vys {
+		vys[i] = Malloc(size)
+		for j := 0; j < size; j++ {
+			vys[i][j] = rand.Float32()
+		}
+	}
+
+	similarities := make([]float32, num)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for j, vy := range vys {
+			similarities[j] = Dot(size, vx, vy)
+		}
+	}
+
+	Free(vx)
+	for i := range vys {
+		Free(vys[i])
+	}
+}
+
+func BenchmarkDotNative(b *testing.B) {
+	num := 16384
+	size := 512
+
+	vx := make([]float32, num)
+	for j := 0; j < size; j++ {
+		vx[j] = rand.Float32()
+	}
+
+	vys := make([][]float32, num)
+	for i := range vys {
+		vys[i] = make([]float32, num)
+		for j := 0; j < size; j++ {
+			vys[i][j] = rand.Float32()
+		}
+	}
+
+	similarities := make([]float32, num)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for j, vy := range vys {
+			similarity := float32(0)
+			for k := 0; k < size; k++ {
+				similarity += vx[k] * vy[k]
+			}
+			similarities[j] = similarity
 		}
 	}
 }
