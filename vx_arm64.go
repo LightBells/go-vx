@@ -63,7 +63,7 @@ float vx_dot(const size_t size, const float *x, const float *y) {
     const size_t l = size / 4;
 
     for (size_t i = 0; i < l; ++i) {
-        vsum = vmlaq_f32(vsum, vx[i], vy[i]);
+        vsum = vfmaq_f32(vsum, vx[i], vy[i]);
     }
 
     float32_t v[4];
