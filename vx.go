@@ -15,7 +15,7 @@ import (
 func AlignedAlloc(size int) []float32 {
 	size_ := size
 	size = align(size)
-	ptr := C.aligned_alloc(vectorLength() * 4, (C.size_t)(C.sizeof_float*size))
+	ptr := C.aligned_alloc(uint64(vectorLength() * 4), (C.size_t)(C.sizeof_float*size))
 	hdr := reflect.SliceHeader{
 		Data: uintptr(unsafe.Pointer(ptr)),
 		Len:  size,
