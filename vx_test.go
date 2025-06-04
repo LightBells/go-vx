@@ -153,19 +153,6 @@ func TestDot(t *testing.T) {
 	}
 }
 
-func TestAlign(t *testing.T) {
-	expects := [][]int{
-		{7, 8},
-		{8, 8},
-		{9, 16},
-	}
-	for _, expect := range expects {
-		if size := align(expect[0]); size != expect[1] {
-			t.Errorf("align should return %d, but %d", expect[1], size)
-		}
-	}
-}
-
 func BenchmarkDotVx(b *testing.B) {
 	num := 16384
 	size := 512

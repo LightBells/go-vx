@@ -1,78 +1,75 @@
+//go:build amd64 && !avx512
+// +build amd64,!avx512
+
 package vx
 
 /*
-#cgo CFLAGS: -std=c11
+#cgo CFLAGS: -std=c11 -O3 -march=skylake
 #cgo LDFLAGS: -lm
 
-#include <stddef.h>
-#include <arm_neon.h>
+#include <immintrin.h>
 
 void vx_add(const size_t size, const float *x, const float *y, float *z) {
-    float32x4_t *vx = (float32x4_t *)x;
-    float32x4_t *vy = (float32x4_t *)y;
-    float32x4_t *vz = (float32x4_t *)z;
+    __m256 *vx = (__m256 *)x;
+    __m256 *vy = (__m256 *)y;
+    __m256 *vz = (__m256 *)z;
 
-    const size_t l = size / 4;
-
+    const size_t l = size / 8;
     for (size_t i = 0; i < l; ++i) {
-        vz[i] = vaddq_f32(vx[i], vy[i]);
+        vz[i] = _mm256_add_ps(vx[i], vy[i]);
     }
 }
 
 void vx_sub(const size_t size, const float *x, const float *y, float *z) {
-    float32x4_t *vx = (float32x4_t *)x;
-    float32x4_t *vy = (float32x4_t *)y;
-    float32x4_t *vz = (float32x4_t *)z;
+    __m256 *vx = (__m256 *)x;
+    __m256 *vy = (__m256 *)y;
+    __m256 *vz = (__m256 *)z;
 
-    const size_t l = size / 4;
-
+    const size_t l = size / 8;
     for (size_t i = 0; i < l; ++i) {
-        vz[i] = vsubq_f32(vx[i], vy[i]);
+        vz[i] = _mm256_sub_ps(vx[i], vy[i]);
     }
 }
 
 void vx_mul(const size_t size, const float *x, const float *y, float *z) {
-    float32x4_t *vx = (float32x4_t *)x;
-    float32x4_t *vy = (float32x4_t *)y;
-    float32x4_t *vz = (float32x4_t *)z;
+    __m256 *vx = (__m256 *)x;
+    __m256 *vy = (__m256 *)y;
+    __m256 *vz = (__m256 *)z;
 
-    const size_t l = size / 4;
-
+    const size_t l = size / 8;
     for (size_t i = 0; i < l; ++i) {
-        vz[i] = vmulq_f32(vx[i], vy[i]);
+        vz[i] = _mm256_mul_ps(vx[i], vy[i]);
     }
 }
 
 void vx_div(const size_t size, const float *x, const float *y, float *z) {
-    float32x4_t *vx = (float32x4_t *)x;
-    float32x4_t *vy = (float32x4_t *)y;
-    float32x4_t *vz = (float32x4_t *)z;
+    __m256 *vx = (__m256 *)x;
+    __m256 *vy = (__m256 *)y;
+    __m256 *vz = (__m256 *)z;
 
-    const size_t l = size / 4;
-
+    const size_t l = size / 8;
     for (size_t i = 0; i < l; ++i) {
-        vz[i] = vdivq_f32(vx[i], vy[i]);
+        vz[i] = _mm256_div_ps(vx[i], vy[i]);
     }
 }
 
 float vx_dot(const size_t size, const float *x, const float *y) {
-    float32x4_t vsum = vdupq_n_f32(0.0);
-    float32x4_t *vx = (float32x4_t *)x;
-    float32x4_t *vy = (float32x4_t *)y;
+    __m256 vsum = _mm256_setzero_ps();
+    __m256 *vx = (__m256 *)x;
+    __m256 *vy = (__m256 *)y;
 
-    const size_t l = size / 4;
-
+    const size_t l = size / 8;
     for (size_t i = 0; i < l; ++i) {
-        vsum = vfmaq_f32(vsum, vx[i], vy[i]);
+        vsum = _mm256_fmadd_ps(vx[i], vy[i], vsum);
     }
 
-    float32_t v[4];
-    vst1q_f32(v, vsum);
-
-    return v[0] + v[1] + v[2] + v[3];
+    __attribute__((aligned(32))) float v[8];
+    _mm256_store_ps(v, vsum);
+    return v[0] + v[1] + v[2] + v[3] + v[4] + v[5] + v[6] + v[7];
 }
 */
 import "C"
+import "math"
 
 func Add(size int, x, y, z []float32) {
 	size = align(size)
@@ -98,4 +95,8 @@ func Dot(size int, x, y []float32) float32 {
 	size = align(size)
 	dot := C.vx_dot((C.size_t)(size), (*C.float)(&x[0]), (*C.float)(&y[0]))
 	return float32(dot)
+}
+
+func align(size int) int {
+	return int(math.Ceil(float64(size)/8.0) * 8.0)
 }

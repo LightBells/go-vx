@@ -1,14 +1,13 @@
 package vx
 
 /*
-#cgo CFLAGS: -std=c11
+#cgo CFLAGS: -std=c11 -O3
 #cgo LDFLAGS: -lm
 
 #include <stdlib.h>
 */
 import "C"
 import (
-	"math"
 	"reflect"
 	"unsafe"
 )
@@ -33,8 +32,4 @@ func AlignedAlloc(size int) []float32 {
 
 func Free(v []float32) {
 	C.free(unsafe.Pointer(&v[0]))
-}
-
-func align(size int) int {
-	return int(math.Ceil(float64(size)/8.0) * 8.0)
 }

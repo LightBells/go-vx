@@ -1,13 +1,11 @@
 # go-vx
 
 SIMD (Single Instruction Multiple Data) extension for golang.
-Provide AVX (Advanced Vector Extensions) binding for amd64 and NEON binding for arm64.
+Provide AVX, AVX512 binding for amd64, and provide NEON, SVE2 binding for arm64.
 
 Forked from [https://github.com/monochromegane/go-avx](https://github.com/monochromegane/go-avx)
 
 ## Golang code example
-
-Set `CGO_CFLAGS_ALLOW=-mfma` to build binary for amd64.
 
 ```go
 package main
@@ -38,6 +36,22 @@ func main() {
 }
 ```
 
+## How to build
+
+```sh
+# for amd64 (avx2)
+GOARCH=amd64 GOAMD64=v2 go build ./vx
+
+# for amd64 (avx512)
+GOARCH=amd64 GOAMD64=v3 go build -tags=avx512 ./vx
+
+# for armv8 (NEON)
+GOARCH=arm64 go build ./vx
+
+# for armv9 (SVE2)
+GOARCH=arm64 go build -tags=sve2 ./vx
+```
+
 ## Features
 
 - Add
@@ -52,7 +66,7 @@ See also `vx_test.go`.
 
 Run `go test -bench Benchmark ./... -run="^Benchmark"`
 
-### AMD64 (Tested on AWS EC2 c5.large instance)
+### AMD64, AVX2 (Tested on AWS EC2 c5.large instance)
 ```
 goos: linux
 goarch: amd64
@@ -63,16 +77,32 @@ PASS
 ok      github.com/gumigumi4f/go-vx     3.953s
 ```
 
-### ARM64 (Tested on AWS EC2 c6g.medium instance)
+### AMD64, AVX512 (Tested on AWS EC2 c5.large instance)
+WIP
+
+### ARM64, NEON (Tested on GCP c4a-standard-1 instance)
 ```
 goos: linux
 goarch: arm64
 pkg: github.com/gumigumi4f/go-vx
-BenchmarkDotVx               274           4275091 ns/op
-BenchmarkDotNative           100          10599838 ns/op
+BenchmarkDotVx     	     498	   2379579 ns/op
+BenchmarkDotNative 	     219	   5443635 ns/op
 PASS
-ok      github.com/gumigumi4f/go-vx     4.154s
+ok  	github.com/gumigumi4f/go-vx	4.111s
 ```
+
+### ARM64, SVE2 (Tested on GCP c4a-standard-1 instance)
+```
+goos: linux
+goarch: arm64
+pkg: github.com/gumigumi4f/go-vx
+BenchmarkDotVx     	     352	   3375619 ns/op
+BenchmarkDotNative 	     219	   5440813 ns/op
+PASS
+ok  	github.com/gumigumi4f/go-vx	4.219s
+```
+
+On GCP’s c4a instances, SVE2 can only use a 128-bit vector length—the same as NEON—so the added overhead makes it run slower than NEON.
 
 ## License
 

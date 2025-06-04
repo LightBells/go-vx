@@ -1,3 +1,3 @@
 module github.com/gumigumi4f/go-vx
 
-go 1.13
+go 1.17

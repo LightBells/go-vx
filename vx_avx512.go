@@ -1,72 +1,74 @@
+//go:build amd64 && avx512
+// +build amd64,avx512
+
 package vx
 
 /*
-#cgo CFLAGS: -mavx -mfma -std=c11
+#cgo CFLAGS: -std=c11 -O3 -march=skylake-avx512
 #cgo LDFLAGS: -lm
 
 #include <immintrin.h>
 
 void vx_add(const size_t size, const float *x, const float *y, float *z) {
-    __m256 *vx = (__m256 *)x;
-    __m256 *vy = (__m256 *)y;
-    __m256 *vz = (__m256 *)z;
+    __m512 *vx = (__512 *)x;
+    __m512 *vy = (__512 *)y;
+    __m512 *vz = (__512 *)z;
 
-    const size_t l = size / 8;
+    const size_t l = size / 16;
     for (size_t i = 0; i < l; ++i) {
-        vz[i] = _mm256_add_ps(vx[i], vy[i]);
+        vz[i] = _mm512_add_ps(vx[i], vy[i]);
     }
 }
 
 void vx_sub(const size_t size, const float *x, const float *y, float *z) {
-    __m256 *vx = (__m256 *)x;
-    __m256 *vy = (__m256 *)y;
-    __m256 *vz = (__m256 *)z;
+    __m512 *vx = (__m512 *)x;
+    __m512 *vy = (__m512 *)y;
+    __m512 *vz = (__m512 *)z;
 
-    const size_t l = size / 8;
+    const size_t l = size / 16;
     for (size_t i = 0; i < l; ++i) {
-        vz[i] = _mm256_sub_ps(vx[i], vy[i]);
+        vz[i] = _mm512_sub_ps(vx[i], vy[i]);
     }
 }
 
-void vx_mul(const size_t size, const float *x, const float *y, float *z) {
-    __m256 *vx = (__m256 *)x;
-    __m256 *vy = (__m256 *)y;
-    __m256 *vz = (__m256 *)z;
 
-    const size_t l = size / 8;
+void vx_mul(const size_t size, const float *x, const float *y, float *z) {
+    __m512 *vx = (__m512 *)x;
+    __m512 *vy = (__m512 *)y;
+    __m512 *vz = (__m512 *)z;
+
+    const size_t l = size / 16;
     for (size_t i = 0; i < l; ++i) {
-        vz[i] = _mm256_mul_ps(vx[i], vy[i]);
+        vz[i] = _mm512_mul_ps(vx[i], vy[i]);
     }
 }
 
 void vx_div(const size_t size, const float *x, const float *y, float *z) {
-    __m256 *vx = (__m256 *)x;
-    __m256 *vy = (__m256 *)y;
-    __m256 *vz = (__m256 *)z;
+    __m512 *vx = (__m512 *)x;
+    __m512 *vy = (__m512 *)y;
+    __m512 *vz = (__m512 *)z;
 
-    const size_t l = size / 8;
+    const size_t l = size / 16;
     for (size_t i = 0; i < l; ++i) {
-        vz[i] = _mm256_div_ps(vx[i], vy[i]);
+        vz[i] = _mm512_div_ps(vx[i], vy[i]);
     }
 }
 
 float vx_dot(const size_t size, const float *x, const float *y) {
-    __m256 vsum = {0};
-    __m256 *vx = (__m256 *)x;
-    __m256 *vy = (__m256 *)y;
+    __m512 vsum = _mm512_setzero_ps();
+    __m512 *vx = (__m512 *)x;
+    __m512 *vy = (__m512 *)y;
 
-    const size_t l = size / 8;
+    const size_t l = size / 16;
     for (size_t i = 0; i < l; ++i) {
-        vsum = _mm256_fmadd_ps(vx[i], vy[i], vsum);
+        vsum = _mm512_fmadd_ps(vx[i], vy[i], vsum);
     }
 
-    __attribute__((aligned(32))) float v[8];
-    _mm256_store_ps(v, vsum);
-
-    return v[0] + v[1] + v[2] + v[3] + v[4] + v[5] + v[6] + v[7];
+    return _mm512_reduce_add_ps(vsum);
 }
 */
 import "C"
+import "math"
 
 func Add(size int, x, y, z []float32) {
 	size = align(size)
@@ -92,4 +94,8 @@ func Dot(size int, x, y []float32) float32 {
 	size = align(size)
 	dot := C.vx_dot((C.size_t)(size), (*C.float)(&x[0]), (*C.float)(&y[0]))
 	return float32(dot)
+}
+
+func align(size int) int {
+	return int(math.Ceil(float64(size)/16.0) * 16.0)
 }
