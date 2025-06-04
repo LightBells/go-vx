@@ -99,3 +99,7 @@ func Dot(size int, x, y []float32) float32 {
 func align(size int) int {
 	return int(math.Ceil(float64(size)/16.0) * 16.0)
 }
+
+func vectorLength() int {
+	return 16
+}

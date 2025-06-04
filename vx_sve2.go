@@ -77,7 +77,15 @@ float vx_dot(const size_t size, const float *x, const float *y) {
 }
 */
 import "C"
-import "math"
+import (
+	"math"
+	"sync"
+)
+
+var (
+	vl int
+	once sync.Once
+)
 
 func Add(size int, x, y, z []float32) {
 	size = align(size)
@@ -105,7 +113,14 @@ func Dot(size int, x, y []float32) float32 {
 	return float32(dot)
 }
 
-func align(size int) int {
-	vl := float64(C.svcntw())
-	return int(math.Ceil(float64(size)/vl) * vl)
+func initVectorLength() {
+	vl := int(C.svcntw())
+	if vl == 0 {
+		panic("failed to get vector length")
+	}
+}
+
+func vectorLength() int {
+	once.Do(initVectorLength)
+	return vl
 }
