@@ -10,9 +10,9 @@ package vx
 #include <immintrin.h>
 
 void vx_add(const size_t size, const float *x, const float *y, float *z) {
-    __m512 *vx = (__512 *)x;
-    __m512 *vy = (__512 *)y;
-    __m512 *vz = (__512 *)z;
+    __m512 *vx = (__m512 *)x;
+    __m512 *vy = (__m512 *)y;
+    __m512 *vz = (__m512 *)z;
 
     const size_t l = size / 16;
     for (size_t i = 0; i < l; ++i) {
