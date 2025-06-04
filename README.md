@@ -40,10 +40,10 @@ func main() {
 
 ```sh
 # for amd64 (avx2)
-GOARCH=amd64 GOAMD64=v2 go build ./vx
+GOARCH=amd64 go build ./vx
 
 # for amd64 (avx512)
-GOARCH=amd64 GOAMD64=v3 go build -tags=avx512 ./vx
+GOARCH=amd64 go build -tags=avx512 ./vx
 
 # for armv8 (NEON)
 GOARCH=arm64 go build ./vx
@@ -64,31 +64,41 @@ See also `vx_test.go`.
 
 ## Benchmark
 
-Run `go test -bench Benchmark ./... -run="^Benchmark"`
+Run `go test -bench Benchmark ./... -run="^Benchmark -benchmem`
 
-### AMD64, AVX2 (Tested on AWS EC2 c5.large instance)
+### AMD64, AVX2 (Tested on GCP c4d-standard-2 instance)
 ```
 goos: linux
 goarch: amd64
 pkg: github.com/gumigumi4f/go-vx
-BenchmarkDotVx-2             364           3201061 ns/op
-BenchmarkDotNative-2         100          10833781 ns/op
+cpu: AMD EPYC 9B45
+BenchmarkDotVx-2       	     817	   1408282 ns/op	     481 B/op	      20 allocs/op
+BenchmarkDotNative-2   	     303	   3935093 ns/op	       0 B/op	       0 allocs/op
 PASS
-ok      github.com/gumigumi4f/go-vx     3.953s
+ok  	github.com/gumigumi4f/go-vx	3.562s
 ```
 
-### AMD64, AVX512 (Tested on AWS EC2 c5.large instance)
-WIP
+### AMD64, AVX512 (Tested on GCP c4d-standard-2 instance)
+```
+goos: linux
+goarch: amd64
+pkg: github.com/gumigumi4f/go-vx
+cpu: AMD EPYC 9B45
+BenchmarkDotVx-2       	    1046	   1018718 ns/op	     375 B/op	      15 allocs/op
+BenchmarkDotNative-2   	     304	   3947970 ns/op	       0 B/op	       0 allocs/op
+PASS
+ok  	github.com/gumigumi4f/go-vx	3.446s
+```
 
 ### ARM64, NEON (Tested on GCP c4a-standard-1 instance)
 ```
 goos: linux
 goarch: arm64
 pkg: github.com/gumigumi4f/go-vx
-BenchmarkDotVx     	     498	   2379579 ns/op
-BenchmarkDotNative 	     219	   5443635 ns/op
+BenchmarkDotVx     	     495	   2384785 ns/op	     794 B/op	      33 allocs/op
+BenchmarkDotNative 	     220	   5423197 ns/op	       0 B/op	       0 allocs/op
 PASS
-ok  	github.com/gumigumi4f/go-vx	4.111s
+ok  	github.com/gumigumi4f/go-vx	4.100s
 ```
 
 ### ARM64, SVE2 (Tested on GCP c4a-standard-1 instance)
@@ -96,10 +106,10 @@ ok  	github.com/gumigumi4f/go-vx	4.111s
 goos: linux
 goarch: arm64
 pkg: github.com/gumigumi4f/go-vx
-BenchmarkDotVx     	     352	   3375619 ns/op
-BenchmarkDotNative 	     219	   5440813 ns/op
+BenchmarkDotVx     	     475	   2493596 ns/op	     827 B/op	      34 allocs/op
+BenchmarkDotNative 	     219	   5430850 ns/op	       0 B/op	       0 allocs/op
 PASS
-ok  	github.com/gumigumi4f/go-vx	4.219s
+ok  	github.com/gumigumi4f/go-vx	4.116s
 ```
 
 On GCP’s c4a instances, SVE2 can only use a 128-bit vector length—the same as NEON—so the added overhead makes it run slower than NEON.
