@@ -77,10 +77,7 @@ float vx_dot(const size_t size, const float *x, const float *y) {
 }
 */
 import "C"
-import (
-	"math"
-	"sync"
-)
+import "sync"
 
 var (
 	vl int

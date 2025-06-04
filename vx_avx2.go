@@ -69,7 +69,6 @@ float vx_dot(const size_t size, const float *x, const float *y) {
 }
 */
 import "C"
-import "math"
 
 func Add(size int, x, y, z []float32) {
 	size = align(size)
