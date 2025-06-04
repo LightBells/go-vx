@@ -39,10 +39,10 @@ func main() {
 ## How to build
 
 ```sh
-# for amd64 (avx2)
+# for amd64 (AVX2)
 GOARCH=amd64 go build ./vx
 
-# for amd64 (avx512)
+# for amd64 (AVX512)
 GOARCH=amd64 go build -tags=avx512 ./vx
 
 # for armv8 (NEON)
