@@ -97,10 +97,6 @@ func Dot(size int, x, y []float32) float32 {
 	return float32(dot)
 }
 
-func align(size int) int {
-	return int(math.Ceil(float64(size)/8.0) * 8.0)
-}
-
 func vectorLength() int {
 	return 8
 }
