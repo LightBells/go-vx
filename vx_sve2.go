@@ -111,7 +111,7 @@ func Dot(size int, x, y []float32) float32 {
 }
 
 func initVectorLength() {
-	vl := int(C.svcntw())
+	vl = int(C.svcntw())
 	if vl == 0 {
 		panic("failed to get vector length")
 	}
