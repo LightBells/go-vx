@@ -74,6 +74,9 @@ void vx_normalize(const size_t size, const float *x, float *z) {
     const size_t l = size / 16;
 
     float sum_sq = vx_dot(size, x, x);
+    if (sum_sq == 0.0f) {
+        return;
+    }
 
     float inv_norm = 1.0f / sqrtf(sum_sq);
 

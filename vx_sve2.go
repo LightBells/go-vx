@@ -76,6 +76,9 @@ float vx_normalize(const size_t size, const size_t vl, const float *x, float *z)
     svbool_t pg;
 
     float sum_sq = vx_dot(size, vl, x, x);
+    if (sum_sq == 0.0f) {
+        return;
+    }
 
     float inv_norm = 1.0f / sqrtf(sum_sq);
 
