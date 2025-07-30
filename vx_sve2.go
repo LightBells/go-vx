@@ -8,7 +8,7 @@ package vx
 #cgo LDFLAGS: -lm
 
 #include <arm_sve.h>
-#include <arm_neon.h>
+#include <math.h>
 
 void vx_add(const size_t size, const size_t vl, const float *x, const float *y, float *z) {
     svbool_t pg;
