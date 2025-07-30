@@ -1,6 +1,7 @@
 package vx
 
 import (
+	"math"
 	"math/rand"
 	"testing"
 )
@@ -148,6 +149,37 @@ func TestDot(t *testing.T) {
 			result := Dot(size, x, y)
 			if truth != result {
 				t.Errorf("Dot should return %f, but %f", truth, result)
+			}
+		}(size)
+	}
+}
+
+func TestNormalize(t *testing.T) {
+	for _, size := range []int{7, 8, 15} {
+		func(size int) {
+			x := AlignedAlloc(size)
+			z := AlignedAlloc(size)
+			defer Free(x)
+			defer Free(z)
+
+			truth := make([]float32, size)
+			sum := float32(0.0)
+			for i := 0; i < size; i++ {
+				x[i] = float32(i)
+				truth[i] = x[i]
+				sum += truth[i] * truth[i]
+			}
+			invNorm := 1 / float32(math.Sqrt(float64(sum)))
+			for i := 0; i < size; i++ {
+				truth[i] = truth[i] * invNorm
+			}
+
+			Normalize(size, x, z)
+
+			for i := 0; i < size; i++ {
+				if truth[i] != z[i] {
+					t.Errorf("Normalize should return %f in %d, but %f", truth[i], i, z[i])
+				}
 			}
 		}(size)
 	}

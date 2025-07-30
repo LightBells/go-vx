@@ -59,6 +59,7 @@ GOARCH=arm64 go build -tags=sve2 ./vx
 - Mul
 - Div
 - Dot
+- Normalize
 
 See also `vx_test.go`.
 

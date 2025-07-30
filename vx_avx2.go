@@ -7,6 +7,7 @@ package vx
 #cgo CFLAGS: -std=c11 -O3 -march=skylake
 #cgo LDFLAGS: -lm
 
+#include <math.h>
 #include <immintrin.h>
 
 void vx_add(const size_t size, const float *x, const float *y, float *z) {
@@ -67,6 +68,22 @@ float vx_dot(const size_t size, const float *x, const float *y) {
     _mm256_store_ps(v, vsum);
     return v[0] + v[1] + v[2] + v[3] + v[4] + v[5] + v[6] + v[7];
 }
+
+void vx_normalize(const size_t size, const float *x, float *z) {
+    __m256 *vx = (__m256 *)x;
+    __m256 *vz = (__m256 *)z;
+
+    const size_t l = size / 8;
+
+    float sum_sq = vx_dot(size, x, x);
+
+    float inv_norm = 1.0f / sqrtf(sum_sq);
+
+    __m256 inv_vec = _mm256_set1_ps(inv_norm);
+    for (size_t i = 0; i < l; ++i) {
+        vz[i] = _mm256_mul_ps(vx[i], inv_vec);
+    }
+}
 */
 import "C"
 
@@ -94,6 +111,11 @@ func Dot(size int, x, y []float32) float32 {
 	size = align(size)
 	dot := C.vx_dot((C.size_t)(size), (*C.float)(&x[0]), (*C.float)(&y[0]))
 	return float32(dot)
+}
+
+func Normalize(size int, x, z []float32) {
+	size = align(size)
+	C.vx_normalize((C.size_t)(size), (*C.float)(&x[0]), (*C.float)(&z[0]))
 }
 
 func vectorLength() int {
