@@ -72,7 +72,7 @@ float vx_dot(const size_t size, const size_t vl, const float *x, const float *y)
     return svaddv(svptrue_b32(), vsum);
 }
 
-float vx_normalize(const size_t size, const size_t vl, const float *x, float *z) {
+void vx_normalize(const size_t size, const size_t vl, const float *x, float *z) {
     svbool_t pg;
 
     float sum_sq = vx_dot(size, vl, x, x);
