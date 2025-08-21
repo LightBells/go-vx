@@ -5,12 +5,69 @@ package vx
 #cgo LDFLAGS: -lm
 
 #include <stdlib.h>
+
+void *c_memcopy(void *dest, const void *src, size_t n) {
+	return memcpy(dest, src, n)
+}
 */
 import "C"
 import (
 	"reflect"
 	"unsafe"
 )
+
+func Memcopy(dst, src []float32, n int) {
+	return C.c_memcopy(dst, src, n * C.sizeof_float)
+}
+
+func AlignedAlloc2D(rows, cols int) [][]float32 {
+	alignedCols := align(cols)
+
+	totalSize := rows * alignedCols
+
+	alignmentBytes := C.size_t(C.sizeof_float * vectorLength())
+	totalBytes := C.size_t(C.sizeof_float * totalSize)
+	ptr := C.aligned_alloc(alignmentBytes, totalBytes)
+	if ptr == nil {
+		panic("aligned_alloc failed to allocate memory")
+	}
+
+	hdr := reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(ptr)),
+		Len:  totalSize,
+		Cap:  totalSize,
+	}
+	data := *(*[]float32)(unsafe.Pointer(&hdr))
+
+	if cols != alignedCols {
+		for r := 0; r < rows; r++ {
+			rowStart := r * alignedCols
+			for c := cols; c < alignedCols; c++ {
+				data[rowStart+c] = 0.0
+			}
+		}
+	}
+
+	matrix := make([][]float32, rows)
+
+	for i := 0; i < rows; i++ {
+		start := i * alignedCols
+		end := start + cols
+		capacityEnd := start + alignedCols
+
+		matrix[i] = data[start:end:capacityEnd]
+	}
+
+	return matrix
+}
+
+func Free2D(matrix [][]float32) {
+	if matrix == nil || len(matrix) == 0 {
+		return
+	}
+	ptr := unsafe.Pointer(&matrix[0][0])
+	C.free(ptr)
+}
 
 func AlignedAlloc(size int) []float32 {
 	size_ := size
