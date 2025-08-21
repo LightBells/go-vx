@@ -12,27 +12,54 @@ import (
 	"unsafe"
 )
 
-func AlignedAlloc2D(dim int, size int) [][]float32 {
-	alloc_size := size*dim
-	alloc_size_ := alloc_size
-	size = align(alloc_size)
-	ptr := C.aligned_alloc((C.size_t)(C.sizeof_float * vectorLength()), (C.size_t)(C.sizeof_float*alloc_size))
+func AlignedAlloc2D(rows, cols int) [][]float32 {
+	alignedCols := align(cols)
+
+	totalSize := rows * alignedCols
+
+	alignmentBytes := C.size_t(C.sizeof_float * vectorLength())
+	totalBytes := C.size_t(C.sizeof_float * totalSize)
+	ptr := C.aligned_alloc(alignmentBytes, totalBytes)
+	if ptr == nil {
+		panic("aligned_alloc failed to allocate memory")
+	}
+
 	hdr := reflect.SliceHeader{
 		Data: uintptr(unsafe.Pointer(ptr)),
-		Len:  alloc_size,
-		Cap:  alloc_size,
+		Len:  totalSize,
+		Cap:  totalSize,
 	}
-	goSliceToFill := *(*[]float32)(unsafe.Pointer(&hdr))
-	if alloc_size_ != alloc_size {
-		for i := alloc_size_; i < size; i++ {
-			goSliceToFill[i] = 0.0
+	data := *(*[]float32)(unsafe.Pointer(&hdr))
+
+	if cols != alignedCols {
+		for r := 0; r < rows; r++ {
+			rowStart := r * alignedCols
+			for c := cols; c < alignedCols; c++ {
+				data[rowStart+c] = 0.0
+			}
 		}
 	}
 
-	goSlice := *(*[][]float32)(unsafe.Pointer(&hdr))
-	return goSlice
+	matrix := make([][]float32, rows)
+
+	for i := 0; i < rows; i++ {
+		start := i * alignedCols
+		end := start + cols
+		capacityEnd := start + alignedCols
+
+		matrix[i] = data[start:end:capacityEnd]
+	}
+
+	return matrix
 }
 
+func Free2D(matrix [][]float32) {
+	if matrix == nil || len(matrix) == 0 {
+		return
+	}
+	ptr := unsafe.Pointer(&matrix[0][0])
+	C.free(ptr)
+}
 
 func AlignedAlloc(size int) []float32 {
 	size_ := size
