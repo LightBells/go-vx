@@ -1,3 +1,3 @@
-module github.com/gumigumi4f/go-vx
+module github.com/LightBells/go-vx
 
 go 1.17
